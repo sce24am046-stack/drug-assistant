@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drug Discovery Assistant | Molecular Solubility & ADMET Predictor</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="AI & Cheminformatics Drug Discovery Assistant for predicting aqueous solubility (LogS) of chemical compounds using molecular structure data, Delaney ESOL, and Lipinski Rule of 5.">
+  <meta name="keywords" content="drug discovery, solubility prediction, cheminformatics, Delaney ESOL, SMILES, molecular descriptors, Lipinski Rule of 5, ADMET, 3Dmol, pharmacology">
+  <meta name="author" content="Drug Discovery Assistant Contributors">
+  
+  <!-- Open Graph / Social Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Drug Discovery Assistant | Molecular Solubility Predictor">
+  <meta property="og:description" content="Predicting aqueous solubility (LogS) and ADMET drug-likeness of chemical compounds from molecular structure data.">
+  <meta property="og:image" content="assets/logo.svg">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Google Fonts: Outfit & Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- External Libraries via CDN -->
+  <script src="https://unpkg.com/smiles-drawer@2.1.7/dist/smiles-drawer.min.js"></script>
+  <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Application Stylesheets -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <div class="app-wrapper">
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+      <div class="navbar-container">
+        <a href="#home" class="nav-brand" id="navBrandLogo">
+          <img src="assets/logo.svg" alt="SoluChem Drug Discovery Assistant Logo">
+          <span class="nav-badge"><span class="status-dot"></span> ESOL v2.4 Active</span>
+        </a>
+
+        <div class="nav-actions">
+          <button type="button" class="btn-icon-text btn-outline" id="openCodeExportBtn">
+            <i data-lucide="code-2" style="width:16px;height:16px;"></i>
+            <span>Export Code</span>
+          </button>
+
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="btn-icon-text btn-accent" id="githubRepoLink">
+            <i data-lucide="github" style="width:16px;height:16px;"></i>
+            <span>GitHub Repository</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section with Canvas Particle Chemistry Simulation -->
+    <section class="hero-section" id="home">
+      <canvas id="heroCanvas"></canvas>
+
+      <div class="hero-content">
+        <div class="hero-pill">
+          <i data-lucide="sparkles" style="width:14px;height:14px;"></i>
+          Next-Gen Cheminformatics & Drug Screening
+        </div>
+
+        <h1 class="hero-title">
+          Drug Discovery <span class="gradient-text">Assistant</span>
+        </h1>
+
+        <p class="hero-description">
+          Predict the aqueous solubility (<span style="font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 600;">LogS</span>) 
+          and ADMET drug-likeness profile of chemical compounds in real time using molecular descriptors, the 
+          validated <strong>Delaney ESOL Model</strong>, and Lipinski's Rule of Five.
+        </p>
+
+        <!-- Quick Metrics Highlights -->
+        <div class="hero-metrics-grid">
+          <div class="metric-pill-card">
+            <div class="metric-icon-box">
+              <i data-lucide="activity" style="width:20px;height:20px;"></i>
+            </div>
+            <div class="metric-meta">
+              <span class="metric-meta-label">Regression Engine</span>
+              <span class="metric-meta-value">Delaney ESOL</span>
+            </div>
+          </div>
+
+          <div class="metric-pill-card">
+            <div class="metric-icon-box" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: var(--accent-emerald);">
+              <i data-lucide="check-circle-2" style="width:20px;height:20px;"></i>
+            </div>
+            <div class="metric-meta">
+              <span class="metric-meta-label">Model Accuracy R²</span>
+              <span class="metric-meta-value">0.89 (±0.65)</span>
+            </div>
+          </div>
+
+          <div class="metric-pill-card">
+            <div class="metric-icon-box" style="background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.2); color: var(--accent-purple);">
+              <i data-lucide="shield-check" style="width:20px;height:20px;"></i>
+            </div>
+            <div class="metric-meta">
+              <span class="metric-meta-label">ADMET Filter</span>
+              <span class="metric-meta-value">Lipinski Ro5 & Veber</span>
+            </div>
+          </div>
+
+          <div class="metric-pill-card">
+            <div class="metric-icon-box" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); color: var(--accent-amber);">
+              <i data-lucide="box" style="width:20px;height:20px;"></i>
+            </div>
+            <div class="metric-meta">
+              <span class="metric-meta-label">Structure Engine</span>
+              <span class="metric-meta-value">2D & 3D WebGL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sticky Navigation Tabs -->
+    <nav class="tabs-navigation-wrapper" aria-label="Main Application Sections">
+      <div class="tabs-container">
+        <button type="button" class="tab-btn active" data-tab="tab-playground" id="tabBtnPlayground">
+          <i data-lucide="flask-conical" style="width:16px;height:16px;"></i>
+          <span>Molecular Playground</span>
+        </button>
+
+        <button type="button" class="tab-btn" data-tab="tab-batch" id="tabBtnBatch">
+          <i data-lucide="layers" style="width:16px;height:16px;"></i>
+          <span>Batch High-Throughput Screening</span>
+        </button>
+
+        <button type="button" class="tab-btn" data-tab="tab-admet" id="tabBtnAdmet">
+          <i data-lucide="radar" style="width:16px;height:16px;"></i>
+          <span>ADMET & Drug-Likeness</span>
+        </button>
+
+        <button type="button" class="tab-btn" data-tab="tab-docs" id="tabBtnDocs">
+          <i data-lucide="book-open" style="width:16px;height:16px;"></i>
+          <span>Methodology & Equations</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Dynamic Application Workspace -->
+    <main class="main-content">
+
+      <!-- ================================================================= -->
+      <!-- TAB 1: MOLECULAR PLAYGROUND & PREDICTOR                            -->
+      <!-- ================================================================= -->
+      <div class="tab-panel active" id="tab-playground">
+        
+        <!-- SMILES Input & Presets Bar -->
+        <div class="glass-card smiles-control-panel">
+          <div class="card-header-clean">
+            <span class="card-title">
+              <i data-lucide="binary"></i>
+              Input Chemical Structure (SMILES Notation)
+            </span>
+            <button type="button" class="btn-ctrl" id="clearSmilesBtn" title="Clear input field">
+              <i data-lucide="x" style="width:14px;height:14px;"></i> Clear
+            </button>
+          </div>
+
+          <div class="input-group-enhanced">
+            <input 
+              type="text" 
+              class="smiles-input" 
+              id="smilesInput" 
+              placeholder="e.g. CC(=O)Oc1ccccc1C(=O)O or paste canonical SMILES..." 
+              value="CC(=O)Oc1ccccc1C(=O)O"
+              spellcheck="false"
+              autocomplete="off"
+            >
+            <button type="button" class="btn-icon-text btn-accent" id="predictBtn">
+              <i data-lucide="zap" style="width:16px;height:16px;"></i>
+              <span>Predict Solubility</span>
+            </button>
+          </div>
+
+          <!-- Quick Drug Presets Pills -->
+          <div class="preset-pills-row">
+            <span class="preset-pill-label">
+              <i data-lucide="pill" style="width:13px;height:13px;"></i> Presets:
+            </span>
+            <div id="presetPills" style="display:contents;">
+              <!-- Generated dynamically by app.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-Column Workspace: Viewer (Left) & Prediction Intelligence (Right) -->
+        <div class="playground-grid">
+
+          <!-- Left Column: Molecular Depiction (2D Vector & 3D WebGL) -->
+          <div class="glass-card molecule-viewer-card">
+            <div class="card-header-clean">
+              <span class="card-title">
+                <i data-lucide="atom"></i>
+                Structural Depiction
+              </span>
+
+              <div class="viewer-toggle-tabs">
+                <button type="button" class="viewer-toggle-btn active" id="viewMode2D">2D Structure</button>
+                <button type="button" class="viewer-toggle-btn" id="viewMode3D">3D Conformer</button>
+              </div>
+            </div>
+
+            <!-- Viewport Container -->
+            <div class="viewer-viewport-box">
+              <canvas id="canvas2d"></canvas>
+              <div id="viewer3d" style="display: none;"></div>
+
+              <!-- 3D Overlay Controls -->
+              <div class="viewer-overlay-controls" id="controls3d" style="display: none;">
+                <div class="viewer-ctrl-group">
+                  <select id="styleSelect3d" class="btn-ctrl" style="background:#0a0f1d; border:1px solid var(--border-card); color:#fff;">
+                    <option value="stick">Stick Representation</option>
+                    <option value="ball_stick">Ball & Stick</option>
+                    <option value="spacefill">Spacefill (VDW)</option>
+                    <option value="wireframe">Wireframe</option>
+                  </select>
+                </div>
+
+                <div class="viewer-ctrl-group">
+                  <button type="button" class="btn-ctrl active" id="spinToggleBtn" title="Toggle 3D auto-rotation">
+                    <i data-lucide="rotate-cw" style="width:13px;height:13px;"></i> Spin
+                  </button>
+                  <button type="button" class="btn-ctrl" id="surfaceToggleBtn" title="Toggle Molecular Electrostatic Surface">
+                    <i data-lucide="layers" style="width:13px;height:13px;"></i> Surface
+                  </button>
+                  <button type="button" class="btn-ctrl" id="resetViewBtn" title="Reset Camera View">
+                    <i data-lucide="maximize" style="width:13px;height:13px;"></i> Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compound Identity Strip -->
+            <div class="compound-identity-bar">
+              <div>
+                <span class="compound-title-tag" id="currentCompoundName">Aspirin (Acetylsalicylic Acid)</span>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <span class="formula-tag" id="currentFormula">C9H8O4</span>
+                <button type="button" class="btn-ctrl" id="download2dBtn" title="Download 2D Image">
+                  <i data-lucide="download" style="width:14px;height:14px;"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Solubility Intelligence & Delaney ESOL Breakdown -->
+          <div class="prediction-card-layout">
+            
+            <!-- Main Hero Solubility Card -->
+            <div class="solubility-main-banner">
+              <div class="solubility-value-group">
+                <span class="solubility-label">Aqueous Solubility (LogS)</span>
+                <div class="solubility-big-number">
+                  <span id="logSValue">-1.74</span>
+                  <span class="solubility-unit">mol/L</span>
+                </div>
+                <div class="solubility-conversions">
+                  <span>Molar: <strong id="molarSolubility" style="color: #fff;">1.82e-2 mol/L</strong></span>
+                  <span>Mass: <strong id="massSolubility" style="color: #fff;">3.28 mg/mL</strong></span>
+                </div>
+              </div>
+
+              <div style="text-align: right; z-index: 2;">
+                <div class="solubility-classification-badge" id="solubilityBadge">
+                  Very Soluble
+                </div>
+                <p id="solubilityNarrative" style="font-size: 0.78rem; color: var(--text-muted); max-width: 200px; margin-top: 8px;">
+                  Favorable aqueous solubility profile for standard oral drug formulations.
+                </p>
+              </div>
+            </div>
+
+            <!-- Qualitative Solubility Spectrum Meter -->
+            <div class="glass-card" style="padding: 18px 24px;">
+              <span class="card-title" style="font-size: 0.95rem; margin-bottom: 10px;">
+                <i data-lucide="gauge"></i>
+                Solubility Spectrum Meter
+              </span>
+
+              <div class="meter-container">
+                <div class="meter-track">
+                  <div class="meter-needle" id="solubilityNeedle" style="left: 69%;"></div>
+                </div>
+                <div class="meter-scale-labels">
+                  <span style="color: var(--sol-poor);">Insoluble (&lt; -6)</span>
+                  <span style="color: var(--sol-slight);">Slightly (-6 to -4.5)</span>
+                  <span style="color: var(--accent-amber);">Moderate (-4.5 to -3)</span>
+                  <span style="color: var(--sol-moderate);">Very (-3 to -1)</span>
+                  <span style="color: var(--sol-high);">Highly (&gt; -1)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delaney ESOL Parameter Attributions -->
+            <div class="glass-card" style="padding: 18px 24px;">
+              <span class="card-title" style="font-size: 0.95rem; margin-bottom: 12px;">
+                <i data-lucide="calculator"></i>
+                Delaney ESOL Model Factor Attribution
+              </span>
+
+              <div class="esol-breakdown-grid">
+                <div class="param-card">
+                  <div class="param-name">cLogP Impact</div>
+                  <div class="param-val" id="breakdownLogP">-0.79</div>
+                  <div class="param-impact negative">-0.63 × cLogP</div>
+                </div>
+
+                <div class="param-card">
+                  <div class="param-name">MW Size Penalty</div>
+                  <div class="param-val" id="breakdownMW">-1.12</div>
+                  <div class="param-impact negative">-0.0062 × MW</div>
+                </div>
+
+                <div class="param-card">
+                  <div class="param-name">Rotatable Bonds</div>
+                  <div class="param-val" id="breakdownRB">+0.20</div>
+                  <div class="param-impact positive">+0.066 × RB</div>
+                </div>
+
+                <div class="param-card">
+                  <div class="param-name">Aromatic Atoms</div>
+                  <div class="param-val" id="breakdownAP">-0.34</div>
+                  <div class="param-impact negative">-0.74 × AP</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Molecular Properties Quick Table -->
+            <div class="glass-card" style="padding: 18px 24px;">
+              <span class="card-title" style="font-size: 0.95rem; margin-bottom: 12px;">
+                <i data-lucide="table"></i>
+                Key Molecular Descriptors
+              </span>
+
+              <div class="descriptors-table-grid">
+                <div class="desc-box">
+                  <div class="desc-key"><span>Mol. Weight</span> <span>Da</span></div>
+                  <div class="desc-num" id="descMW">180.16 Da</div>
+                </div>
+
+                <div class="desc-box">
+                  <div class="desc-key"><span>cLogP</span> <span>log₁₀</span></div>
+                  <div class="desc-num" id="descLogP">1.25</div>
+                </div>
+
+                <div class="desc-box">
+                  <div class="desc-key"><span>H-Donors</span> <span>HBD</span></div>
+                  <div class="desc-num" id="descHBD">1</div>
+                </div>
+
+                <div class="desc-box">
+                  <div class="desc-key"><span>H-Acceptors</span> <span>HBA</span></div>
+                  <div class="desc-num" id="descHBA">4</div>
+                </div>
+
+                <div class="desc-box">
+                  <div class="desc-key"><span>Rot. Bonds</span> <span>RB</span></div>
+                  <div class="desc-num" id="descRB">3</div>
+                </div>
+
+                <div class="desc-box">
+                  <div class="desc-key"><span>Polar Area</span> <span>TPSA</span></div>
+                  <div class="desc-num" id="descTPSA">63.6 Å²</div>
+                </div>
+
+                <div class="desc-box">
+                  <div class="desc-key"><span>Aromatic Atoms</span> <span>Count</span></div>
+                  <div class="desc-num" id="descAromatic">6 (46%)</div>
+                </div>
+
+                <div class="desc-box">
+                  <div class="desc-key"><span>Heavy Atoms</span> <span>Count</span></div>
+                  <div class="desc-num" id="descHeavyAtoms">13</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- TAB 2: BATCH HIGH-THROUGHPUT SCREENING                            -->
+      <!-- ================================================================= -->
+      <div class="tab-panel" id="tab-batch">
+        <div class="glass-card" style="margin-bottom: 24px;">
+          <div class="card-header-clean">
+            <div>
+              <span class="card-title">
+                <i data-lucide="upload-cloud"></i>
+                High-Throughput Batch Compound Screener
+              </span>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+                Upload a CSV file containing SMILES strings, or load curated clinical drug datasets to predict solubility and drug-likeness in parallel.
+              </p>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button type="button" class="btn-icon-text btn-outline" onclick="BatchProcessor.loadSampleData()">
+                <i data-lucide="database" style="width:14px;height:14px;"></i>
+                <span>Load Sample Library</span>
+              </button>
+              <button type="button" class="btn-icon-text btn-accent" onclick="BatchProcessor.exportCSV()">
+                <i data-lucide="file-spreadsheet" style="width:14px;height:14px;"></i>
+                <span>Export to CSV</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Drag and Drop Upload Box -->
+          <div class="batch-upload-zone" id="batchDropZone">
+            <input type="file" id="csvFileInput" accept=".csv,.txt" style="display: none;">
+            <div class="batch-upload-icon">
+              <i data-lucide="file-code-2" style="width:40px;height:40px;"></i>
+            </div>
+            <p style="font-size: 1rem; font-weight: 600; color: #fff;">
+              Click to select or drag & drop CSV / TXT file here
+            </p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">
+              Supports headers: <code style="color: var(--accent-cyan);">SMILES, Name, Compound_ID</code>
+            </p>
+          </div>
+
+          <!-- Batch Metrics Summary -->
+          <div class="hero-metrics-grid" style="margin-top: 20px;">
+            <div class="metric-pill-card">
+              <div class="metric-icon-box">
+                <i data-lucide="hash" style="width:18px;height:18px;"></i>
+              </div>
+              <div class="metric-meta">
+                <span class="metric-meta-label">Screened Compounds</span>
+                <span class="metric-meta-value" id="batchCount">0</span>
+              </div>
+            </div>
+
+            <div class="metric-pill-card">
+              <div class="metric-icon-box" style="color: var(--accent-blue);">
+                <i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i>
+              </div>
+              <div class="metric-meta">
+                <span class="metric-meta-label">Mean LogS (mol/L)</span>
+                <span class="metric-meta-value" id="batchAvgLogS">0.00</span>
+              </div>
+            </div>
+
+            <div class="metric-pill-card">
+              <div class="metric-icon-box" style="color: var(--accent-emerald);">
+                <i data-lucide="droplets" style="width:18px;height:18px;"></i>
+              </div>
+              <div class="metric-meta">
+                <span class="metric-meta-label">Soluble Compounds (LogS ≥ -4)</span>
+                <span class="metric-meta-value" id="batchSolublePct">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scatter Plot & Data Table Grid -->
+        <div class="playground-grid">
+
+          <!-- Interactive Scatter Plot -->
+          <div class="glass-card">
+            <div class="card-header-clean">
+              <span class="card-title">
+                <i data-lucide="scatter-chart"></i>
+                Solubility Distribution Correlation
+              </span>
+
+              <div class="viewer-toggle-tabs">
+                <button type="button" class="viewer-toggle-btn active" onclick="this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active')); this.classList.add('active'); BatchProcessor.setChartXAxis('mw')">vs MW</button>
+                <button type="button" class="viewer-toggle-btn" onclick="this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active')); this.classList.add('active'); BatchProcessor.setChartXAxis('cLogP')">vs cLogP</button>
+              </div>
+            </div>
+
+            <div style="height: 380px; position: relative;">
+              <canvas id="scatterChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Interactive Batch Results Table -->
+          <div class="glass-card">
+            <div class="card-header-clean">
+              <span class="card-title">
+                <i data-lucide="list-filter"></i>
+                Batch Compound Register
+              </span>
+
+              <input 
+                type="text" 
+                id="batchSearchInput" 
+                placeholder="Search compound, SMILES or class..." 
+                style="background: var(--bg-input); border: 1px solid var(--border-card); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; outline: none;"
+              >
+            </div>
+
+            <div class="table-responsive-container">
+              <table class="batch-table">
+                <thead>
+                  <tr>
+                    <th>Compound</th>
+                    <th>SMILES</th>
+                    <th>MW (Da)</th>
+                    <th>cLogP</th>
+                    <th>LogS</th>
+                    <th>Classification</th>
+                    <th>Ro5</th>
+                  </tr>
+                </thead>
+                <tbody id="batchTableBody">
+                  <tr>
+                    <td colspan="7" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                      No batch compounds loaded. Click "Load Sample Library" above or drop a CSV file to inspect.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- TAB 3: ADMET & DRUG-LIKENESS RADAR                                -->
+      <!-- ================================================================= -->
+      <div class="tab-panel" id="tab-admet">
+        <div class="playground-grid">
+
+          <!-- Radar Chart Visualization -->
+          <div class="glass-card">
+            <div class="card-header-clean">
+              <div>
+                <span class="card-title">
+                  <i data-lucide="radar"></i>
+                  Lipinski & Veber Bioavailability Envelope
+                </span>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                  Comparison of the active molecule's descriptors against Pfizer's optimal oral bioavailability envelope (100% threshold).
+                </p>
+              </div>
+            </div>
+
+            <div style="height: 380px; position: relative;">
+              <canvas id="radarChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Lipinski Rule of 5 Evaluation List -->
+          <div class="glass-card">
+            <div class="card-header-clean">
+              <span class="card-title">
+                <i data-lucide="clipboard-check"></i>
+                Lipinski Rule of 5 & Veber Compliance
+              </span>
+
+              <div id="ro5StatusPill" class="ro5-status-pill">
+                Evaluating...
+              </div>
+            </div>
+
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+              According to Christopher Lipinski's Rule of 5 (1997), poor absorption or permeation is more likely when there are more than 5 H-bond donors, 10 H-bond acceptors, the molecular weight is greater than 500 Da, and the calculated LogP is greater than 5.
+            </p>
+
+            <div class="ro5-rules-list" id="ro5RulesList">
+              <!-- Rendered dynamically by app.js -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- TAB 4: METHODOLOGY & SCIENTIFIC CITATIONS                         -->
+      <!-- ================================================================= -->
+      <div class="tab-panel" id="tab-docs">
+        <div class="glass-card" style="margin-bottom: 24px;">
+          <div class="card-header-clean">
+            <span class="card-title">
+              <i data-lucide="graduation-cap"></i>
+              Delaney ESOL Model (Estimating Solubility Directly from Molecular Structure)
+            </span>
+          </div>
+
+          <div style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.8;">
+            <p style="margin-bottom: 14px;">
+              Aqueous solubility is a critical physicochemical property in modern drug discovery. Poor water solubility frequently leads to low bioavailability, erratic oral absorption, and attrition in preclinical pipelines.
+            </p>
+
+            <div style="background: rgba(0, 0, 0, 0.4); padding: 18px; border-radius: var(--radius-md); border-left: 4px solid var(--accent-cyan); margin: 18px 0; font-family: var(--font-mono); font-size: 0.95rem; color: #a5f3fc;">
+              LogS = 0.16 - 0.63(cLogP) - 0.0062(MW) + 0.066(Rotatable Bonds) - 0.74(Aromatic Proportion)
+            </div>
+
+            <h3 style="font-family: var(--font-sans); color: #fff; margin: 20px 0 10px; font-size: 1.1rem;">Parameter Roles & Mechanics:</h3>
+            <ul style="margin-left: 20px; display: flex; flex-direction: column; gap: 8px;">
+              <li><strong>cLogP (Octanol-Water Partition):</strong> Hydrophobicity penalty. High lipophilicity directly hinders hydration by water molecules.</li>
+              <li><strong>Molecular Weight (MW):</strong> Cavity formation penalty. Larger molecules require more free energy to disrupt the water hydrogen-bonding network.</li>
+              <li><strong>Rotatable Bonds (RB):</strong> Conformational entropy bonus. Greater molecular flexibility improves dissolution dynamics.</li>
+              <li><strong>Aromatic Proportion (AP):</strong> Lattice energy penalty. Planar aromatic rings form dense crystal π-π stacking lattices that strongly resist dissolution.</li>
+            </ul>
+
+            <h3 style="font-family: var(--font-sans); color: #fff; margin: 24px 0 10px; font-size: 1.1rem;">Literature References & Benchmarks:</h3>
+            <ol style="margin-left: 20px; color: var(--text-muted); font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px;">
+              <li>Delaney, J. S. (2004). ESOL: Estimating Aqueous Solubility Directly from Molecular Structure. <em>Journal of Chemical Information and Computer Sciences</em>, 44(3), 1000–1005.</li>
+              <li>Lipinski, C. A., et al. (1997). Experimental and computational approaches to estimate solubility and permeability in drug discovery and development settings. <em>Advanced Drug Delivery Reviews</em>, 23(1-3), 3–25.</li>
+              <li>Sorkun, M. C., et al. (2019). AqSolDB, a curated aqueous solubility dataset of chemical compounds. <em>Scientific Data</em>, 6(1), 143.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div>
+          <div style="font-weight: 700; color: #fff; margin-bottom: 4px;">Drug Discovery Assistant • SoluChem AI</div>
+          <div>Predicting aqueous solubility & molecular pharmacology parameters for chemical compounds.</div>
+        </div>
+
+        <div class="footer-links">
+          <a href="#tab-playground" onclick="document.getElementById('tabBtnPlayground').click()">Playground</a>
+          <a href="#tab-batch" onclick="document.getElementById('tabBtnBatch').click()">Batch Screening</a>
+          <a href="#tab-docs" onclick="document.getElementById('tabBtnDocs').click()">Scientific Method</a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub Pages Ready</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Code Snippet Generator Modal -->
+  <div class="modal-backdrop" id="codeModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span class="card-title">
+          <i data-lucide="terminal"></i>
+          Reproducible Pipeline Code Exporter
+        </span>
+        <button type="button" class="modal-close-btn" id="closeModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
+          Integrate this exact Delaney ESOL calculation directly into your computational chemistry scripts or notebooks:
+        </p>
+
+        <div style="font-weight: 700; font-size: 0.85rem; color: var(--accent-cyan); margin-top: 10px;">Python (RDKit / SciPy):</div>
+        <div class="code-block-wrapper">
+          <button type="button" class="btn-copy-code" data-target="codePythonRdkit">
+            <i data-lucide="copy" style="width:12px;height:12px;"></i> Copy
+          </button>
+          <pre id="codePythonRdkit"></pre>
+        </div>
+
+        <div style="font-weight: 700; font-size: 0.85rem; color: var(--accent-blue); margin-top: 14px;">JavaScript / Node.js ChemEngine:</div>
+        <div class="code-block-wrapper">
+          <button type="button" class="btn-copy-code" data-target="codeJsEngine">
+            <i data-lucide="copy" style="width:12px;height:12px;"></i> Copy
+          </button>
+          <pre id="codeJsEngine"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Application Logic Modules -->
+  <script src="js/chemEngine.js"></script>
+  <script src="js/presets.js"></script>
+  <script src="js/viewer2D.js"></script>
+  <script src="js/viewer3D.js"></script>
+  <script src="js/batchProcessor.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

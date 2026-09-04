@@ -1,0 +1,28 @@
+{
+  "name": "drug-discovery-assistant",
+  "version": "1.0.0",
+  "description": "Interactive Web Application for predicting aqueous solubility (LogS) of chemical compounds using molecular data & Delaney ESOL model.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx -y serve . -l 3000",
+    "dev": "npx -y serve . -l 3000",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "drug-discovery",
+    "cheminformatics",
+    "solubility-prediction",
+    "esol",
+    "lipinski-rule-of-five",
+    "rdkit",
+    "molecular-visualization",
+    "3dmol",
+    "admet"
+  ],
+  "author": "Drug Discovery Assistant Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/drug-discovery-assistant.git"
+  }
+}
